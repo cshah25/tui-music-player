@@ -3,7 +3,8 @@ use std::path::PathBuf;
 use random_string::generate;
 use md5;
 use std::fs;
-
+use std::fs::OpenOptions;
+use std::os::unix::fs::OpenOptionsExt;
 use crate::input::{prompt_user, InputKind};
 
 pub struct Config {
@@ -56,12 +57,18 @@ pub fn rw_config() -> Config {
     // No config yet: ask the user and save it
     let uname = prompt_user("Username: ", InputKind::Text);
     let password = prompt_user("Password: ", InputKind::Password);
-    let server_url = prompt_user("Server URL (Defaults to `http://`): ", InputKind::ServerURL);
+    let server_url = prompt_user("Server URL (Defaults to `https://`): ", InputKind::ServerURL);
 
     let salt = gen_salt(None);
     let token = format!("{:x}", md5::compute(format!("{}{}", password, salt)));
 
-    let mut f = fs::File::create(&config_path).expect("failed to create config file");
+    let mut f = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600) // owner read/write only
+        .open(&config_path)
+        .expect("failed to create config file");
     writeln!(f, "uname:{}", uname).expect("failed to write config");
     writeln!(f, "token:{}", token).expect("failed to write config");
     writeln!(f, "salt:{}", salt).expect("failed to write config");
@@ -69,4 +76,3 @@ pub fn rw_config() -> Config {
 
     Config { uname, token, salt, server_url }
 }
-

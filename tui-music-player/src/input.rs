@@ -29,7 +29,10 @@ pub fn prompt_user(msg: &str, kind: InputKind) -> String {
         if let InputKind::ServerURL = kind {
             input = input.trim_end_matches('/').to_string();
             if !(input.starts_with("http://") || input.starts_with("https://")) {
-                input = format!("http://{}", input);
+                input = format!("https://{}", input);
+            }
+            if input.starts_with("http://") {
+                println!("Sending request over `http`, login can be intercepted! Use `https` for a secure connection")
             }
         }
 
