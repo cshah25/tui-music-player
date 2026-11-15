@@ -1,7 +1,8 @@
-use std::io::{self, Write};
+use std::io::{self, Read, Write};
 use random_string::generate;
 use rpassword;
 use md5;
+use std::fs;
 use reqwest::blocking::Client;
 
 enum InputKind {
@@ -53,18 +54,34 @@ fn prompt_user(msg: &str, kind: InputKind) -> String {
 }
 
 fn auth() {
-    let uname = prompt_user("Username: ", InputKind::Text);
-    let password = prompt_user("Password: ", InputKind::Password);
-    let server_url = prompt_user("Server URL (Defaults to `http://`): ", InputKind::ServerURL);
-    // salt
-    let salt = gen_salt(None);
-    let token = format!("{:x}", md5::compute(format!("{}{}", password, salt)));
-
-    // sending the request
+    let config_path = "~/.config/tui-music-player/creds";
+    let mut uname = String::new();
+    let mut token = String::new();
+    let mut salt = String::new();
+    let mut server_url = String::new();
+    if !fs::exists(config_path).is_err() {
+        // read from the file
+        // TODO: let content = std::fs::read_to_string(config_path);
+    } else {
+        uname = prompt_user("Username: ", InputKind::Text);
+        let password = prompt_user("Password: ", InputKind::Password);
+        server_url = prompt_user("Server URL (Defaults to `http://`): ", InputKind::ServerURL);
+        // salt
+        salt = gen_salt(None);
+        token = format!("{:x}", md5::compute(format!("{}{}", password, salt)));
+        // write this to the file
+        fs::create_dir_all("~/.config/tui-music-player/");
+        let f = fs::File::create(config_path);
+        write!(f.expect("expected to write {uname} to {config_path}"), "uname:{uname}");
+        write!(f.expect("expected to write {token} to {config_path}"), "token:{token}");
+        write!(f.expect("expected to write {salt} to {config_path}"), "salt:{salt}");
+        write!(f.expect("expected to write {server_url} to {config_path}"), "server:{server_url}");
+    }
+    // Sending the request
     let client = Client::new();
     let res = client
         .post(server_url + "/rest/ping.view")
-            .form(& [
+            .form(&[
                 ("u", uname),
                 ("t", token),
                 ("s", salt),
@@ -74,6 +91,7 @@ fn auth() {
             ]).send().expect("request failed");
     println!("Status: {}", res.status());
     println!("{}", res.text().unwrap());
+
 }
 
 fn main() {
