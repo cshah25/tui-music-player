@@ -2,7 +2,7 @@ use std::sync::mpsc::{self, Receiver, Sender};
 
 use crate::action::Action;
 use crate::config;
-use crate::state::{AppState, AuthState};
+use crate::state::{AppState, AuthState, Loadable};
 use crate::update::update;
 
 pub struct App {
@@ -18,7 +18,7 @@ impl App {
             Some(cfg) => AuthState::LoggedIn(cfg),
             None => AuthState::LoggedOut,
         };
-        App { state: AppState { auth }, tx, rx }
+        App { state: AppState { auth, playlists: Loadable::NotLoaded }, tx, rx }
     }
 
     pub fn dispatch(&mut self, action: Action) {
