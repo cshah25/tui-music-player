@@ -1,3 +1,7 @@
+[workspace]
+members = ["core", "tui"]
+resolver = "2"
+
 [package]
 name = "tui-music-player"
 version = "0.1.0"
