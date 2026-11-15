@@ -1,29 +1,30 @@
-// music_core/src/app.rs
 use std::sync::mpsc::{self, Receiver, Sender};
 
 use crate::action::Action;
-use crate::config::Config;
-use crate::state::AppState;
+use crate::config;
+use crate::state::{AppState, AuthState};
 use crate::update::update;
 
 pub struct App {
-    pub state: AppState,      // frontends can read this to draw
-    tx: Sender<Action>,       // services use this to send results back
+    pub state: AppState,
+    tx: Sender<Action>,
     rx: Receiver<Action>,
 }
 
 impl App {
-    pub fn new(config: Config) -> App {
+    pub fn new() -> App {
         let (tx, rx) = mpsc::channel();
-        App { state: AppState::new(config), tx, rx }
+        let auth = match config::load() {
+            Some(cfg) => AuthState::LoggedIn(cfg),
+            None => AuthState::LoggedOut,
+        };
+        App { state: AppState { auth }, tx, rx }
     }
 
-    // The frontend calls this when the user does something
     pub fn dispatch(&mut self, action: Action) {
         update(&mut self.state, action, &self.tx);
     }
 
-    // The frontend calls this every frame to apply finished background work
     pub fn process_background(&mut self) {
         while let Ok(action) = self.rx.try_recv() {
             update(&mut self.state, action, &self.tx);
