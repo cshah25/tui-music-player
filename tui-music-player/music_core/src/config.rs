@@ -3,6 +3,7 @@ use std::io::Write;
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::PathBuf;
 
+#[derive(Clone)]
 pub struct Config {
     pub uname: String,
     pub token: String,

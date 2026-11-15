@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use input::{prompt_user, InputKind};
 use music_core::action::Action;
-use music_core::state::AuthState;
+use music_core::state::{ AuthState, Loadable };
 use music_core::App;
 
 fn main() {
@@ -25,6 +25,26 @@ fn main() {
                 ask_login(&mut app);
             }
             AuthState::LoggingIn => thread::sleep(Duration::from_millis(50)),
+        }
+    }
+
+    app.dispatch(Action::LoadPlaylists);
+
+    loop {
+        app.process_background();
+
+        match &app.state.playlists {
+            Loadable::Loaded(playlists) => {
+                for p in playlists {
+                    println!("{} ({} songs)", p.name, p.song_count);
+                }
+                break;
+            }
+            Loadable::Failed(msg) => {
+                println!("Could not load playlists: {msg}");
+                break;
+            }
+            _ => thread::sleep(Duration::from_millis(50)),
         }
     }
 }

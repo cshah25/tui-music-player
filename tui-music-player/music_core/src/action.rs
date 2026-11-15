@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::models::Playlist;
 
 pub enum Action {
     Login {
@@ -8,4 +9,8 @@ pub enum Action {
     },
     LoginSucceeded(Config),
     LoginFailed(String),
+
+    LoadPlaylists,
+    PlaylistsLoaded(Vec<Playlist>),
+    PlaylistsFailed(String),
 }
