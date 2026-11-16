@@ -47,6 +47,37 @@ fn main() {
             _ => thread::sleep(Duration::from_millis(50)),
         }
     }
+
+    app.dispatch(Action::LoadArtists);
+
+    loop {
+        app.process_background();
+        match &app.state.artist_index {
+            Loadable::Loaded(artist_index) => {
+                println!("Artist index len: {}", artist_index.len());
+                for a in artist_index {
+                    println!("------------Index {}------------", a.name);
+                    for artist in &a.artists {
+                        println!("-----------------Artist name: {}-----------------", artist.name);
+                        println!("Artist id: {}", artist.id);
+                        println!("Artist Album Count: {}", artist.album_count);
+                        if artist.cover_art.is_some() {
+                            println!("Artist Cover Art: {}", artist.cover_art.as_ref().unwrap().to_string());
+                        } else {
+                            println!("Artist Cover Art Does not exist");
+                        }
+                    }
+                }
+                break;
+            }
+            Loadable::Failed(msg) => {
+                println!("Could not load artists: {msg}");
+                break;
+            }
+
+            _ => thread::sleep(Duration::from_millis(50)),
+        }
+    }
 }
 
 fn ask_login(app: &mut App) {
