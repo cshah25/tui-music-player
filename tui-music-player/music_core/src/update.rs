@@ -38,6 +38,23 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
             }
         }
         Action::PlaylistsLoaded(list) => state.playlists = Loadable::Loaded(list),
-        Action::PlaylistsFailed(msg) => state.playlists = Loadable::Failed(msg)
+        Action::PlaylistsFailed(msg) => state.playlists = Loadable::Failed(msg),
+
+        Action::LoadArtists => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.artist_index = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_artists(&cfg) {
+                        Ok(list) => Action::ArtistsLoaded(list),
+                        Err(msg) => Action::ArtistsFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::ArtistsLoaded(list) => state.artist_index = Loadable::Loaded(list),
+        Action::ArtistsFailed(msg) => state.playlists = Loadable::Failed(msg),
     }
 }
