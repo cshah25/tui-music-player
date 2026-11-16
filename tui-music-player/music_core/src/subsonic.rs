@@ -1,9 +1,11 @@
 use reqwest::blocking::Client;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 
 use crate::config::Config;
-use crate::models::Playlist;
+use crate::models::{Playlist, ArtistIndex};
 
+// Shared request parsing
 fn request(config: &Config, endpoint: &str, extra: &[(&str, &str)]) -> Result<String, String> {
     let mut params = vec![
         ("u", config.uname.as_str()),
@@ -24,19 +26,49 @@ fn request(config: &Config, endpoint: &str, extra: &[(&str, &str)]) -> Result<St
         .map_err(|e| format!("Bad response from server: {e}"))
 }
 
-// These structs mirror the JSON layout:
-// { "subsonic-response": { "status": "ok", "playlists": { "playlist": [ ... ] } } }
+// Every response looks like:
+// { "subsonic-response": {"status": "...", "error" : {...}?, <endpoint data> } }
+
 #[derive(Deserialize)]
-struct Envelope {
+struct Envelope<T> {
     #[serde(rename = "subsonic-response")]
-    response: PlaylistsResponse,
+    response: Response<T>,
 }
 
 #[derive(Deserialize)]
-struct PlaylistsResponse {
+struct Response<T> {
     status: String,
-    playlists: Option<PlaylistList>,
     error: Option<ApiError>,
+    #[serde(flatten)]
+    data: T,
+}
+
+#[derive(Deserialize)]
+struct ApiError {
+    message: String,
+}
+
+fn call<T: DeserializeOwned> (
+    config: &Config,
+    endpoint: &str,
+    extra: &[(&str, &str)],
+) -> Result<T, String> {
+    let body = request(config, endpoint, extra)?;
+    let parsed: Envelope<T> = serde_json::from_str(&body)
+        .map_err(|e| format!("Could not read {endpoint} response: {e}"))?;
+    let res = parsed.response;
+    if res.status != "ok" {
+        return Err(res.error.map(|e| e.message).unwrap_or_else(|| "Unknown error".to_string()));
+    }
+
+    Ok(res.data)
+}
+
+// getPlaylists
+
+#[derive(Deserialize)]
+struct PlaylistsBody {
+    playlists: Option<PlaylistList>,
 }
 
 #[derive(Deserialize)]
@@ -45,21 +77,24 @@ struct PlaylistList {
     playlist: Vec<Playlist>,
 }
 
-#[derive(Deserialize)]
-struct ApiError {
-    message: String,
+pub fn get_playlists(config: &Config) -> Result<Vec<Playlist>, String> {
+    let body: PlaylistsBody = call(config, "getPlaylists", &[])?;
+    Ok(body.playlists.map(|p| p.playlist).unwrap_or_default())
 }
 
-pub fn get_playlists(config: &Config) -> Result<Vec<Playlist>, String> {
-    let body = request(config, "getPlaylists", &[])?;
-    let parsed: Envelope =
-        serde_json::from_str(&body).map_err(|e| format!("Could not read playlists: {e}"))?;
+// getArtists
 
-    let res = parsed.response;
-    if res.status != "ok" {
-        let msg = res.error.map(|e| e.message).unwrap_or("Unknown error".to_string());
-        return Err(msg);
-    }
+#[derive(Deserialize)]
+struct ArtistsBody {
+    artists: Option<ArtistsList>,
+}
 
-    Ok(res.playlists.map(|p| p.playlist).unwrap_or_default())
+#[derive(Deserialize)]
+struct ArtistsList {
+    #[serde(default)]
+    index: Vec<ArtistIndex>,
+}
+pub fn get_artists(config: &Config) -> Result<Vec<ArtistIndex>, String> {
+    let body: ArtistsBody = call(config, "getArtists", &[])?;
+    Ok(body.artists.map(|a| a.index).unwrap_or_default())
 }
