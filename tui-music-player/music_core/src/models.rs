@@ -27,3 +27,13 @@ pub struct ArtistIndex {
     #[serde(default, rename = "artist")]
     pub artists: Vec<Artist>,
 }
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Genre {
+    #[serde(default)]
+    pub song_count: u32,
+    #[serde(default)]
+    pub album_count: u32,
+    pub value: String
+}
