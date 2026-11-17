@@ -3,7 +3,7 @@ use serde::Deserialize;
 use serde::de::DeserializeOwned;
 
 use crate::config::Config;
-use crate::models::{Playlist, ArtistIndex};
+use crate::models::{ArtistIndex, Genre, Playlist};
 
 // Shared request parsing
 fn request(config: &Config, endpoint: &str, extra: &[(&str, &str)]) -> Result<String, String> {
@@ -97,4 +97,22 @@ struct ArtistsList {
 pub fn get_artists(config: &Config) -> Result<Vec<ArtistIndex>, String> {
     let body: ArtistsBody = call(config, "getArtists", &[])?;
     Ok(body.artists.map(|a| a.index).unwrap_or_default())
+}
+
+// getGenres
+
+#[derive(Deserialize)]
+struct GenresBody {
+    genres: Option<GenresList>,
+}
+
+#[derive(Deserialize)]
+struct GenresList {
+    #[serde(default)]
+    genres: Vec<Genre>
+}
+
+pub fn get_genres(config: &Config) -> Result<Vec<Genre>, String> {
+    let body: GenresBody = call(config, "getGenres", &[])?;
+    Ok(body.genres.map(|g| g.genres).unwrap_or_default())
 }
