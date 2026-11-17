@@ -54,7 +54,6 @@ fn main() {
         app.process_background();
         match &app.state.artist_index {
             Loadable::Loaded(artist_index) => {
-                println!("Artist index len: {}", artist_index.len());
                 for a in artist_index {
                     println!("------------Index {}------------", a.name);
                     for artist in &a.artists {
@@ -75,6 +74,26 @@ fn main() {
                 break;
             }
 
+            _ => thread::sleep(Duration::from_millis(50)),
+        }
+    }
+
+    app.dispatch(Action::LoadGenres);
+
+    loop {
+        app.process_background();
+        match &app.state.genres {
+            Loadable::Loaded(genres) => {
+                println!("------------------------Genres Loaded------------------------");
+                for g in genres {
+                    println!("Genre name : {}", g.value);
+                }
+                break;
+            }
+            Loadable::Failed(msg) => {
+                println!("Could not load genres: {msg}");
+                break;
+            }
             _ => thread::sleep(Duration::from_millis(50)),
         }
     }

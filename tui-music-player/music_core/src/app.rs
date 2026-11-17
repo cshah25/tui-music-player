@@ -18,7 +18,7 @@ impl App {
             Some(cfg) => AuthState::LoggedIn(cfg),
             None => AuthState::LoggedOut,
         };
-        App { state: AppState { auth, playlists: Loadable::NotLoaded, artist_index: Loadable::NotLoaded }, tx, rx }
+        App { state: AppState { auth, playlists: Loadable::NotLoaded, artist_index: Loadable::NotLoaded, genres: Loadable::NotLoaded }, tx, rx }
     }
 
     pub fn dispatch(&mut self, action: Action) {
