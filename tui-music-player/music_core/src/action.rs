@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::models::{Artist, ArtistIndex, Genre, Playlist};
+use crate::models::{Album, Artist, ArtistIndex, Genre, Playlist};
 
 pub enum Action {
     Login {
@@ -21,6 +21,10 @@ pub enum Action {
     LoadArtist(String), // artist id
     ArtistLoaded(Artist),
     ArtistFailed(String),
+
+    LoadAlbum(String), // album id
+    AlbumLoaded(Album),
+    AlbumFailed(String),
 
     LoadGenres,
     GenresLoaded(Vec<Genre>),
