@@ -108,6 +108,40 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
         Action::PlaylistLoaded(playlist) => state.playlist = Loadable::Loaded(playlist),
         Action::PlaylistFailed(msg) => state.playlist = Loadable::Failed(msg),
 
+        Action::LoadSongsByGenre(genre) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.genre_songs = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_songs_by_genre(&cfg, &genre, 500, 0) {
+                        Ok(songs) => Action::SongsByGenreLoaded(songs),
+                        Err(msg) => Action::SongsByGenreFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::SongsByGenreLoaded(songs) => state.genre_songs = Loadable::Loaded(songs),
+        Action::SongsByGenreFailed(msg) => state.genre_songs = Loadable::Failed(msg),
+
+        Action::LoadAlbumList(list_type) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.album_list = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_album_list2(&cfg, &list_type, 500, 0) {
+                        Ok(albums) => Action::AlbumListLoaded(albums),
+                        Err(msg) => Action::AlbumListFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::AlbumListLoaded(albums) => state.album_list = Loadable::Loaded(albums),
+        Action::AlbumListFailed(msg) => state.album_list = Loadable::Failed(msg),
+
         Action::LoadGenres => {
             if let AuthState::LoggedIn(cfg) = &state.auth {
                 state.genres = Loadable::Loading;

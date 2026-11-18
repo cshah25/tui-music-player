@@ -27,6 +27,8 @@ impl App {
                 artist: Loadable::NotLoaded,
                 album: Loadable::NotLoaded,
                 playlist: Loadable::NotLoaded,
+                genre_songs: Loadable::NotLoaded,
+                album_list: Loadable::NotLoaded,
             },
             tx,
             rx
