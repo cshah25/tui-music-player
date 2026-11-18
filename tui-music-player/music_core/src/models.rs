@@ -19,6 +19,8 @@ pub struct Artist {
     #[serde(default)]
     pub album_count: u32,
     pub cover_art: Option<String>,
+    #[serde(default,rename="album")]
+    pub albums: Vec<Album>,
 }
 
 #[derive(Deserialize, Clone)]
