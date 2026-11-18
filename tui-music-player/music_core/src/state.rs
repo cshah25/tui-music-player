@@ -22,4 +22,5 @@ pub struct AppState {
     pub genres: Loadable<Vec<Genre>>,
     pub artist: Loadable<Artist>,
     pub album: Loadable<Album>,
+    pub playlist: Loadable<Playlist>,
 }
