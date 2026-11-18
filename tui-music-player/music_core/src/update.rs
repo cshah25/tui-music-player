@@ -91,6 +91,23 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
         Action::AlbumLoaded(album) => state.album = Loadable::Loaded(album),
         Action::AlbumFailed(msg) => state.album = Loadable::Failed(msg),
 
+        Action::LoadPlaylist(id) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.playlist = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_playlist(&cfg, &id) {
+                        Ok(playlist) => Action::PlaylistLoaded(playlist),
+                        Err(msg) => Action::PlaylistFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::PlaylistLoaded(playlist) => state.playlist = Loadable::Loaded(playlist),
+        Action::PlaylistFailed(msg) => state.playlist = Loadable::Failed(msg),
+
         Action::LoadGenres => {
             if let AuthState::LoggedIn(cfg) = &state.auth {
                 state.genres = Loadable::Loading;

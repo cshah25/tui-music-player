@@ -121,6 +121,18 @@ pub fn get_album(config: &Config, id: &str) -> Result<Album, String> {
     Ok(body.album)
 }
 
+// getPlaylist
+
+#[derive(Deserialize)]
+struct PlaylistBody {
+    playlist: Playlist,
+}
+
+pub fn get_playlist(config: &Config, id: &str) -> Result<Playlist, String> {
+    let body: PlaylistBody = call(config, "getPlaylist", &[("id", id)])?;
+    Ok(body.playlist)
+}
+
 // getGenres
 
 #[derive(Deserialize)]
