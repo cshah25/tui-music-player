@@ -4,6 +4,8 @@ A very basic TUI music player written in rust that is compatible with Subsonic A
 
 Currently under development
 
+Link: [https://git.vtechno.ca/cshah25/tui-music-player](https://git.vtechno.ca/cshah25/tui-music-player)
+
 ## TODOs:
 
 ### Done
