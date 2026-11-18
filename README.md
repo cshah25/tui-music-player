@@ -16,13 +16,13 @@ Currently under development
 - [x] `getGenres`
 
 ### music_core: drill-down (getting to actual songs)
-- [ ] `Song` model (id, title, artist, album, duration, track, coverArt, ...)
-- [ ] `Album` model
-- [ ] `getArtist(id)` -> albums of an artist
-- [ ] `getAlbum(id)` -> songs on an album
-- [ ] `getPlaylist(id)` -> songs in a playlist
-- [ ] `getSongsByGenre(genre)` -> songs in a genre
-- [ ] `getAlbumList2` (recent / newest / random / frequent) for a home view
+- [x] `Song` model (id, title, artist, album, duration, track, coverArt, ...)
+- [x] `Album` model
+- [x] `getArtist(id)` -> albums of an artist
+- [x] `getAlbum(id)` -> songs on an album
+- [x] `getPlaylist(id)` -> songs in a playlist
+- [x] `getSongsByGenre(genre)` -> songs in a genre
+- [x] `getAlbumList2` (recent / newest / random / frequent) for a home view
 
 ### music_core: playback
 - [ ] Build the `stream` URL for a song (auth params as query string)
