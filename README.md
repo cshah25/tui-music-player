@@ -16,7 +16,7 @@ Currently under development
 - [x] `getGenres`
 
 ### Fixes
-- [ ] `getGenres` parses the wrong key: the response is `{"genres": {"genre": [...]}}`, so `GenresList.genres` should be `genre` (currently always returns an empty list)
+- [x] `getGenres` parses the wrong key: the response is `{"genres": {"genre": [...]}}`, so `GenresList.genres` should be `genre` (currently always returns an empty list)
 - [ ] `ArtistsFailed` writes to `state.playlists` instead of `state.artist_index`
 - [ ] Rename `GenreFailed` -> `GenresFailed` to match the other actions
 
