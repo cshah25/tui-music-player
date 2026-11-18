@@ -55,7 +55,7 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
             }
         }
         Action::ArtistsLoaded(list) => state.artist_index = Loadable::Loaded(list),
-        Action::ArtistsFailed(msg) => state.playlists = Loadable::Failed(msg),
+        Action::ArtistsFailed(msg) => state.artist_index = Loadable::Failed(msg),
 
         Action::LoadGenres => {
             if let AuthState::LoggedIn(cfg) = &state.auth {
