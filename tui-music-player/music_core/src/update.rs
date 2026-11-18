@@ -57,6 +57,91 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
         Action::ArtistsLoaded(list) => state.artist_index = Loadable::Loaded(list),
         Action::ArtistsFailed(msg) => state.artist_index = Loadable::Failed(msg),
 
+        Action::LoadArtist(id) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.artist = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_artist(&cfg, &id) {
+                        Ok(artist) => Action::ArtistLoaded(artist),
+                        Err(msg) => Action::ArtistFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::ArtistLoaded(artist) => state.artist = Loadable::Loaded(artist),
+        Action::ArtistFailed(msg) => state.artist = Loadable::Failed(msg),
+
+        Action::LoadAlbum(id) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.album = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_album(&cfg, &id) {
+                        Ok(album) => Action::AlbumLoaded(album),
+                        Err(msg) => Action::AlbumFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::AlbumLoaded(album) => state.album = Loadable::Loaded(album),
+        Action::AlbumFailed(msg) => state.album = Loadable::Failed(msg),
+
+        Action::LoadPlaylist(id) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.playlist = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_playlist(&cfg, &id) {
+                        Ok(playlist) => Action::PlaylistLoaded(playlist),
+                        Err(msg) => Action::PlaylistFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::PlaylistLoaded(playlist) => state.playlist = Loadable::Loaded(playlist),
+        Action::PlaylistFailed(msg) => state.playlist = Loadable::Failed(msg),
+
+        Action::LoadSongsByGenre(genre) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.genre_songs = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_songs_by_genre(&cfg, &genre, 500, 0) {
+                        Ok(songs) => Action::SongsByGenreLoaded(songs),
+                        Err(msg) => Action::SongsByGenreFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::SongsByGenreLoaded(songs) => state.genre_songs = Loadable::Loaded(songs),
+        Action::SongsByGenreFailed(msg) => state.genre_songs = Loadable::Failed(msg),
+
+        Action::LoadAlbumList(list_type) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.album_list = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_album_list2(&cfg, &list_type, 500, 0) {
+                        Ok(albums) => Action::AlbumListLoaded(albums),
+                        Err(msg) => Action::AlbumListFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::AlbumListLoaded(albums) => state.album_list = Loadable::Loaded(albums),
+        Action::AlbumListFailed(msg) => state.album_list = Loadable::Failed(msg),
+
         Action::LoadGenres => {
             if let AuthState::LoggedIn(cfg) = &state.auth {
                 state.genres = Loadable::Loading;
