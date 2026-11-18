@@ -1,0 +1,11 @@
+[package]
+name = "tui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+music_core = { path = "../music_core" }
+ratatui = "0.29"
+crossterm = "0.28"
+rpassword = "7"
+
