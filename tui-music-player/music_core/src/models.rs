@@ -9,6 +9,8 @@ pub struct Playlist {
     pub song_count: u32,
     #[serde(default)]
     pub duration: u32,
+    #[serde(default, rename = "entry")]
+    pub songs: Vec<Song>,
 }
 
 #[derive(Deserialize, Clone)]
