@@ -26,6 +26,10 @@ pub enum Action {
     AlbumLoaded(Album),
     AlbumFailed(String),
 
+    LoadPlaylist(String), // playlist id
+    PlaylistLoaded(Playlist),
+    PlaylistFailed(String),
+
     LoadGenres,
     GenresLoaded(Vec<Genre>),
     GenresFailed(String),
