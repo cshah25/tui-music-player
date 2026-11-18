@@ -109,10 +109,10 @@ struct GenresBody {
 #[derive(Deserialize)]
 struct GenresList {
     #[serde(default)]
-    genres: Vec<Genre>
+    genre: Vec<Genre>
 }
 
 pub fn get_genres(config: &Config) -> Result<Vec<Genre>, String> {
     let body: GenresBody = call(config, "getGenres", &[])?;
-    Ok(body.genres.map(|g| g.genres).unwrap_or_default())
+    Ok(body.genres.map(|g| g.genre).unwrap_or_default())
 }
