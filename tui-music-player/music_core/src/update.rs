@@ -57,6 +57,23 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
         Action::ArtistsLoaded(list) => state.artist_index = Loadable::Loaded(list),
         Action::ArtistsFailed(msg) => state.artist_index = Loadable::Failed(msg),
 
+        Action::LoadArtist(id) => {
+            if let AuthState::LoggedIn(cfg) = &state.auth {
+                state.artist = Loadable::Loading;
+                let cfg = cfg.clone();
+                let tx = tx.clone();
+                thread::spawn(move || {
+                    let result = match subsonic::get_artist(&cfg, &id) {
+                        Ok(artist) => Action::ArtistLoaded(artist),
+                        Err(msg) => Action::ArtistFailed(msg)
+                    };
+                    let _ = tx.send(result);
+                });
+            }
+        }
+        Action::ArtistLoaded(artist) => state.artist = Loadable::Loaded(artist),
+        Action::ArtistFailed(msg) => state.artist = Loadable::Failed(msg),
+
         Action::LoadGenres => {
             if let AuthState::LoggedIn(cfg) = &state.auth {
                 state.genres = Loadable::Loading;

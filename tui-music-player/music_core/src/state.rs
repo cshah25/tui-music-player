@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::models::{ArtistIndex, Genre, Playlist};
+use crate::models::{Artist, ArtistIndex, Genre, Playlist};
 
 pub enum AuthState {
     LoggedOut,
@@ -20,4 +20,5 @@ pub struct AppState {
     pub playlists: Loadable<Vec<Playlist>>,
     pub artist_index: Loadable<Vec<ArtistIndex>>,
     pub genres: Loadable<Vec<Genre>>,
+    pub artist: Loadable<Artist>,
 }
