@@ -96,3 +96,42 @@ pub struct Album {
     #[serde(default, rename = "song")]
     pub songs: Vec<Song>,
 }
+
+/// The `type` param for getAlbumList2, plus any extra params that type requires.
+#[derive(Clone)]
+pub enum AlbumListType {
+    Random,
+    Newest,
+    Highest,
+    Frequent,
+    Recent,
+    AlphabeticalByName,
+    AlphabeticalByArtist,
+    Starred,
+    ByYear { from: u32, to: u32 },
+    ByGenre(String),
+}
+
+impl AlbumListType {
+    pub fn params(&self) -> Vec<(&'static str, String)> {
+        match self {
+            AlbumListType::Random => vec![("type", "random".into())],
+            AlbumListType::Newest => vec![("type", "newest".into())],
+            AlbumListType::Highest => vec![("type", "highest".into())],
+            AlbumListType::Frequent => vec![("type", "frequent".into())],
+            AlbumListType::Recent => vec![("type", "recent".into())],
+            AlbumListType::AlphabeticalByName => vec![("type", "alphabeticalByName".into())],
+            AlbumListType::AlphabeticalByArtist => vec![("type", "alphabeticalByArtist".into())],
+            AlbumListType::Starred => vec![("type", "starred".into())],
+            AlbumListType::ByYear { from, to } => vec![
+                ("type", "byYear".into()),
+                ("fromYear", from.to_string()),
+                ("toYear", to.to_string()),
+            ],
+            AlbumListType::ByGenre(genre) => vec![
+                ("type", "byGenre".into()),
+                ("genre", genre.clone()),
+            ],
+        }
+    }
+}
