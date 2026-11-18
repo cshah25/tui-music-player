@@ -65,13 +65,13 @@ pub fn update(state: &mut AppState, action: Action, tx: &Sender<Action>) {
                 thread::spawn(move || {
                     let result = match subsonic::get_genres(&cfg) {
                         Ok(list) => Action::GenresLoaded(list),
-                        Err(msg) => Action::GenreFailed(msg)
+                        Err(msg) => Action::GenresFailed(msg)
                     };
                     let _ = tx.send(result);
                 });
             }
         }
         Action::GenresLoaded(list) => state.genres = Loadable::Loaded(list),
-        Action::GenreFailed(msg) => state.genres = Loadable::Failed(msg)
+        Action::GenresFailed(msg) => state.genres = Loadable::Failed(msg)
     }
 }

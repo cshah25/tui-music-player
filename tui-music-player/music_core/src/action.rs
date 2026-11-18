@@ -20,5 +20,5 @@ pub enum Action {
 
     LoadGenres,
     GenresLoaded(Vec<Genre>),
-    GenreFailed(String),
+    GenresFailed(String),
 }
