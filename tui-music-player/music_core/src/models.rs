@@ -37,3 +37,36 @@ pub struct Genre {
     pub album_count: u32,
     pub value: String
 }
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Song {
+    pub id: String,
+    pub parent: Option<String>,
+    #[serde(default)]
+    pub title: String,
+    #[serde(default)]
+    pub album: String,
+    #[serde(default)]
+    pub artist: String,
+    pub album_id: Option<String>,
+    pub artist_id: Option<String>,
+    #[serde(default)]
+    pub is_dir: bool,
+    pub cover_art: Option<String>,
+    pub track: Option<u32>,
+    pub disc_number: Option<u32>,
+    pub year: Option<u32>,
+    pub genre: Option<String>,
+    #[serde(default)]
+    pub duration: u32,
+    #[serde(default)]
+    pub bit_rate: u32,
+    #[serde(default)]
+    pub size: u64,
+    pub suffix: Option<String>,
+    pub content_type: Option<String>,
+    #[serde(default)]
+    pub is_video: bool,
+    pub path: Option<String>,
+    pub created: Option<String>,
+}
